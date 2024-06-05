@@ -11,4 +11,6 @@ module com.example.batallanaval {
     opens com.example.batallanaval.view to javafx.fxml;
     exports com.example.batallanaval.view.alert;
     opens com.example.batallanaval.view.alert to javafx.fxml;
+    exports com.example.batallanaval.model;
+    opens com.example.batallanaval.model to javafx.fxml;
 }
