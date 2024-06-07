@@ -17,36 +17,40 @@ public class GameController {
     private static final int SIZE = 11; // Define el tamaño del tablero
 
     @FXML
-    private GridPane gridPanePlayer1;
+    private GridPane gridPanePlayer1; // Tablero de la máquina
     @FXML
-    private GridPane gridPanePlayer2;
+    private GridPane gridPanePlayer2; // Tablero del jugador
 
     private Cell[][] cells1 = new Cell[SIZE][SIZE];
     private Cell[][] cells2 = new Cell[SIZE][SIZE];
 
-    private List<List<Cell>> ships1; // Lista de listas de celdas para los barcos del jugador 1
-    private List<List<Cell>> ships2; // Lista de listas de celdas para los barcos del jugador 2
+    private List<List<Cell>> ships1; // Lista de listas de celdas para los barcos de la máquina
+    private List<List<Cell>> ships2; // Lista de listas de celdas para los barcos del jugador
 
     private Random random = new Random();
-    private Set<String> machineShots = new HashSet<>(); // Para evitar tiros repetidos
+    private Set<String> machineShots = new HashSet<>(); // Para evitar tiros repetidos de la máquina
+
+    private boolean playerTurn = true; // Indica de quién es el turno
 
     // Método para inicializar el tablero y otras configuraciones iniciales
     @FXML
     public void initialize() {
-        initializeBoard(gridPanePlayer1, cells1);
-        initializeBoard(gridPanePlayer2, cells2);
+        initializeBoard(gridPanePlayer1, cells1, false); // Inicializa el tablero de la máquina
+        initializeBoard(gridPanePlayer2, cells2, true);  // Inicializa el tablero del jugador
 
         // Coloca los barcos de ambos jugadores
-        ships1 = placeShips(cells1);
-        ships2 = placeShips(cells2);
+        ships1 = placeShips(cells1); // Coloca los barcos de la máquina
+        ships2 = placeShips(cells2); // Coloca los barcos del jugador
     }
 
-    private void initializeBoard(GridPane gridPane, Cell[][] cells) {
+    private void initializeBoard(GridPane gridPane, Cell[][] cells, boolean isPlayer) {
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
                 Button button = new Button();
                 button.setPrefSize(40, 40);
-                button.setOnAction(this::onHandleButtonPlay);
+                if (isPlayer) {
+                    button.setOnAction(this::onHandleButtonPlay);
+                }
                 gridPane.add(button, col, row);
                 cells[row][col] = new Cell(button, CellState.AGUA);
             }
@@ -66,34 +70,51 @@ public class GameController {
 
     @FXML
     void onHandleButtonPlay(ActionEvent event) {
-        Button button = (Button) event.getSource();
-        boolean hit = false;
-        for (int row = 0; row < SIZE; row++) {
-            for (int col = 0; col < SIZE; col++) {
-                if (cells2[row][col].getButton() == button) {
-                    hit = handleCellClick(cells2[row][col], ships2);
-                    break;
+        if (playerTurn) {
+            Button button = (Button) event.getSource();
+            for (int row = 0; row < SIZE; row++) {
+                for (int col = 0; col < SIZE; col++) {
+                    if (cells2[row][col].getButton() == button) {
+                        handleCellClick(cells2[row][col], ships2);
+                        machineTurn();
+                        return;
+                    }
                 }
             }
         }
-        if (!hit) {
-            machineShoot();
+    }
+
+    private void machineTurn() {
+        if (!playerTurn) {
+            boolean hit;
+            do {
+                hit = machineShoot();
+            } while (hit);
         }
     }
 
-    private void machineShoot() {
+    private boolean machineShoot() {
         int row, col;
         do {
             row = random.nextInt(SIZE);
             col = random.nextInt(SIZE);
-        } while (machineShots.contains(row + "," + col)); // Evitar disparos repetidos
+        } while (machineShots.contains(row + "," + col) || cells1[row][col].getState() != CellState.AGUA); // Evitar disparos repetidos y a casillas ya presionadas
         machineShots.add(row + "," + col);
-        handleCellClick(cells1[row][col], ships1);
+        boolean hit = handleCellClick(cells1[row][col], ships1);
+        if (!hit) {
+            playerTurn = true; // Si la máquina no acierta, cambia el turno al jugador
+        }
+        return hit;
     }
 
     private boolean handleCellClick(Cell cell, List<List<Cell>> ships) {
+        if (cell.getState() == CellState.AGUA || cell.getState() == CellState.BARCO || cell.getState() == CellState.BARCO_HUNDIDO) {
+            cell.getButton().setDisable(true); // Deshabilita el botón para evitar futuros eventos
+        }
+
         if (cell.getState() == CellState.AGUA) {
             cell.getButton().setStyle("-fx-background-color: #0022ff;"); // Indica agua
+            playerTurn = !playerTurn; // Cambia el turno
             return false;
         } else if (cell.getState() == CellState.BARCO) {
             cell.getButton().setStyle("-fx-background-color: #ad3636;"); // Indica parte del barco tocada
@@ -106,6 +127,7 @@ public class GameController {
         }
         return false;
     }
+
 
     private void checkIfShipSunk(List<List<Cell>> ships) {
         for (List<Cell> ship : ships) {
@@ -120,6 +142,7 @@ public class GameController {
                 for (Cell cell : ship) {
                     cell.getButton().setStyle("-fx-background-color: #000000;"); // Indica barco hundido
                 }
+                playerTurn = !playerTurn; // Cambia el turno
             }
         }
     }
