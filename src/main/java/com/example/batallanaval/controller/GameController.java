@@ -12,8 +12,11 @@ import com.example.batallanaval.model.Cell;
 import com.example.batallanaval.model.CellState;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 import java.util.*;
 
@@ -66,7 +69,7 @@ public class GameController {
     @FXML
     public void initialize() {
 
-        initializeBoard(gridPanePlayer1, cells1, false); // Inicializa el tablero de la máquina
+        initializeBoard(gridPanePlayer1, cells1, true); // Inicializa el tablero de la máquina
         initializeBoard(gridPanePlayer2, cells2, true);  // Inicializa el tablero del jugador
 
         // Coloca los barcos de ambos jugadores
@@ -86,11 +89,23 @@ public class GameController {
     private List<List<Cell>> placeShips(Cell[][] cells) {
         List<List<Cell>> ships = new ArrayList<>();
 
-        // Coloca el primer barco de tres celdas como ejemplo
+        // 1 Portaaviones
+        ships.add(placeShip(cells, 4));
+
+        // 2 Submarinos
+        ships.add(placeShip(cells, 3));
         ships.add(placeShip(cells, 3));
 
-        // Coloca el segundo barco de cuatro celdas como ejemplo
-        ships.add(placeShip(cells, 4));
+        // 3 Destructores
+        ships.add(placeShip(cells, 2));
+        ships.add(placeShip(cells, 2));
+        ships.add(placeShip(cells, 2));
+
+        // 4 Fragatas
+        ships.add(placeShip(cells, 1));
+        ships.add(placeShip(cells, 1));
+        ships.add(placeShip(cells, 1));
+        ships.add(placeShip(cells, 1));
 
         // Puedes continuar agregando más barcos aquí
 
@@ -133,7 +148,7 @@ public class GameController {
     }
 
     /**
-     * Maneja el evento de clic en una celda del tablero del jugador.
+     * Maneja el evento de click en una celda del tablero del jugador.
      */
     @FXML
     void onHandleButtonPlay(ActionEvent event) {
@@ -191,11 +206,11 @@ public class GameController {
     private boolean handleCellClick(Cell cell, List<List<Cell>> ships) {
         if (cell.getState() == CellState.AGUA) {
             cell.getButton().setDisable(true); // Deshabilita el botón para evitar futuros eventos
-            cell.getButton().setStyle("-fx-background-color: #0022ff;"); // Indica agua
+            cell.getButton().setStyle("-fx-background-color:  #00f6ff;"); // Indica agua
             return false;
         } else if (cell.getState() == CellState.BARCO) {
             cell.getButton().setDisable(true); // Deshabilita el botón para evitar futuros eventos
-            cell.getButton().setStyle("-fx-background-color: #ad3636;");
+            cell.getButton().setStyle("-fx-background-color:  #ff0000;");
             cell.setState(CellState.BARCO_HUNDIDO);
             checkIfShipSunk(ships);
             return true;
@@ -249,15 +264,49 @@ public class GameController {
         return true;
     }
 
+    // Inicia en falso hasta la falta de barcos arroje la alerta
+    private boolean gameEnded = false;
+
     /**
-     * Finaliza el juego.
-     *
-     * <p>
-     * Aquí se pueden agregar acciones adicionales para finalizar el juego, como mostrar un mensaje de victoria.
-     * </p>
+     * Desactiva los controles relevantes del juego.
+     */
+    private void disableControls() {
+        // Desactiva los botones del tablero para evitar más interacción del jugador
+        for (Node node : gridPanePlayer2.getChildren()) {
+            if (node instanceof Button) {
+                ((Button) node).setDisable(true);
+            }
+        }
+        for (Node node : gridPanePlayer1.getChildren()) {
+            if (node instanceof Button) {
+                ((Button) node).setDisable(true);
+            }
+        }
+    }
+
+    /**
+     * Configuracion del alert box
+     */
+    private void showAlert(AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    /**
+     * Finaliza el juego y arroja la alerta
      */
     private void endGame() {
-        // Aquí puedes agregar el código para finalizar el juego, como mostrar un mensaje de victoria
-        System.out.println("Juego terminado");
+        if (!gameEnded) { // Verifica si el juego ya ha finalizado para evitar que se repita el mensaje
+            gameEnded = true; // Marca el juego como finalizado
+
+            // Llama al método showAlert para mostrar el Alert Box
+            showAlert(AlertType.INFORMATION, "Fin del juego", "¡El juego ha terminado!");
+
+            // Desactiva los controles relevantes para evitar más interacción del usuario
+            disableControls();
+        }
     }
 }
