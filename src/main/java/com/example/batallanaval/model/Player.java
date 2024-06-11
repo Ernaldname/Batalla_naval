@@ -1,3 +1,11 @@
+/**
+ * @AUTOR: Edinson Arnulfo Ramirez Mendez - 2224504-2724
+ * @Correo: edinson.ramirez@correunivalle.edu.co
+ * @Version: V1
+ *
+ * Descripcion de clase: Contiene la informacion del jugador, nombre (No se usa en este caso, casillas y barcos)
+ */
+
 package com.example.batallanaval.model;
 
 import java.util.ArrayList;

@@ -1,0 +1,6 @@
+module:com.example.batallanaval
+com.example.batallanaval
+com.example.batallanaval.controller
+com.example.batallanaval.model
+com.example.batallanaval.view
+com.example.batallanaval.view.alert

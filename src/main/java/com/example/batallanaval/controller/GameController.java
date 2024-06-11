@@ -1,3 +1,11 @@
+/**
+ * @AUTOR: Edinson Arnulfo Ramirez Mendez - 2224504-2724
+ * @Correo: edinson.ramirez@correunivalle.edu.co
+ * @Version: V1
+ *
+ * Descripcion de clase: Estado principal del juego y mecanismos
+ */
+
 package com.example.batallanaval.controller;
 
 import com.example.batallanaval.model.Cell;
@@ -9,6 +17,9 @@ import javafx.scene.layout.GridPane;
 
 import java.util.*;
 
+/**
+ * Clase que representa el controlador del juego Batalla Naval.
+ */
 public class GameController {
 
     private static final int SIZE = 10; // Define el tamaño del tablero
@@ -32,7 +43,9 @@ public class GameController {
 
     private boolean playerTurn = true;
 
-    // CARACTERISTICAS DE AMBOS TABLEROS E INDICA LAS ACCIONES DEL BOTON SOBRE CADA CASILLA
+    /**
+     * Inicializa el tablero del juego.
+     */
     private void initializeBoard(GridPane gridPane, Cell[][] cells, boolean isPlayer) {
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
@@ -47,7 +60,9 @@ public class GameController {
         }
     }
 
-    // Método para inicializar el tablero y otras configuraciones iniciales
+    /**
+     * Inicializa el juego.
+     */
     @FXML
     public void initialize() {
 
@@ -65,13 +80,16 @@ public class GameController {
         }
     }
 
+    /**
+     * Coloca los barcos en el tablero.
+     */
     private List<List<Cell>> placeShips(Cell[][] cells) {
         List<List<Cell>> ships = new ArrayList<>();
 
-        // Coloca el primer barco de tres celdas en la primera fila como ejemplo
+        // Coloca el primer barco de tres celdas como ejemplo
         ships.add(placeShip(cells, 3));
 
-        // Coloca el segundo barco de cuatro celdas en la segunda fila como ejemplo
+        // Coloca el segundo barco de cuatro celdas como ejemplo
         ships.add(placeShip(cells, 4));
 
         // Puedes continuar agregando más barcos aquí
@@ -79,6 +97,9 @@ public class GameController {
         return ships;
     }
 
+    /**
+     * Coloca un barco en una posición aleatoria del tablero.
+     */
     private List<Cell> placeShip(Cell[][] cells, int length) {
         List<Cell> ship = new ArrayList<>();
 
@@ -111,7 +132,9 @@ public class GameController {
         return ship;
     }
 
-
+    /**
+     * Maneja el evento de clic en una celda del tablero del jugador.
+     */
     @FXML
     void onHandleButtonPlay(ActionEvent event) {
         if (playerTurn) {
@@ -130,6 +153,9 @@ public class GameController {
         }
     }
 
+    /**
+     * Turno de la máquina para disparar.
+     */
     private void machineTurn() {
         if (!playerTurn) {
             boolean hit;
@@ -139,6 +165,9 @@ public class GameController {
         }
     }
 
+    /**
+     * La máquina realiza un disparo.
+     */
     private boolean machineShoot() {
         int row, col;
         do {
@@ -156,6 +185,9 @@ public class GameController {
         return hit;
     }
 
+    /**
+     * Maneja el clic en una celda del tablero.
+     */
     private boolean handleCellClick(Cell cell, List<List<Cell>> ships) {
         if (cell.getState() == CellState.AGUA) {
             cell.getButton().setDisable(true); // Deshabilita el botón para evitar futuros eventos
@@ -163,7 +195,7 @@ public class GameController {
             return false;
         } else if (cell.getState() == CellState.BARCO) {
             cell.getButton().setDisable(true); // Deshabilita el botón para evitar futuros eventos
-            cell.getButton().setStyle("-fx-background-color: #ad3636;"); // Indica parte del barco tocada
+            cell.getButton().setStyle("-fx-background-color: #ad3636;");
             cell.setState(CellState.BARCO_HUNDIDO);
             checkIfShipSunk(ships);
             return true;
@@ -175,7 +207,11 @@ public class GameController {
         return false;
     }
 
-
+    /**
+     * Verifica si un barco ha sido hundido y realiza las acciones correspondientes.
+     *
+     * @param ships Lista de listas de celdas que representan los barcos.
+     */
     private void checkIfShipSunk(List<List<Cell>> ships) {
         for (List<Cell> ship : ships) {
             boolean sunk = true;
@@ -196,6 +232,12 @@ public class GameController {
         }
     }
 
+    /**
+     * Verifica si todos los barcos han sido hundidos.
+     *
+     * @param ships Lista de listas de celdas que representan los barcos.
+     * @return True si todos los barcos han sido hundidos, false de lo contrario.
+     */
     private boolean areAllShipsSunk(List<List<Cell>> ships) {
         for (List<Cell> ship : ships) {
             for (Cell cell : ship) {
@@ -207,6 +249,13 @@ public class GameController {
         return true;
     }
 
+    /**
+     * Finaliza el juego.
+     *
+     * <p>
+     * Aquí se pueden agregar acciones adicionales para finalizar el juego, como mostrar un mensaje de victoria.
+     * </p>
+     */
     private void endGame() {
         // Aquí puedes agregar el código para finalizar el juego, como mostrar un mensaje de victoria
         System.out.println("Juego terminado");
