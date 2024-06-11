@@ -14,6 +14,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -24,6 +25,10 @@ import java.util.*;
  * Clase que representa el controlador del juego Batalla Naval.
  */
 public class GameController {
+
+    // Contador de vida
+    @FXML
+    private Label VIDA;
 
     private static final int SIZE = 10; // Define el tamaño del tablero
 
@@ -38,6 +43,8 @@ public class GameController {
     // LISTAS DE LISTAS PARA EL USO DEL TABLERO
     private List<List<Cell>> ships1; // Lista de listas de celdas para los barcos de la máquina
     private List<List<Cell>> ships2; // Lista de listas de celdas para los barcos del jugador
+
+    private int shipsRemaining; // Declara la variable shipsRemaining para los barcos que siguen a flote
 
     private Random random = new Random();
 
@@ -68,15 +75,15 @@ public class GameController {
      */
     @FXML
     public void initialize() {
+        initializeBoard(gridPanePlayer1, cells1, true);
+        initializeBoard(gridPanePlayer2, cells2, true);
 
-        initializeBoard(gridPanePlayer1, cells1, true); // Inicializa el tablero de la máquina
-        initializeBoard(gridPanePlayer2, cells2, true);  // Inicializa el tablero del jugador
+        ships1 = placeShips(cells1);
+        ships2 = placeShips(cells2);
 
-        // Coloca los barcos de ambos jugadores
-        ships1 = placeShips(cells1); // máquina
-        ships2 = placeShips(cells2); // jugador
+        // shipsRemaining = ships1.size(); // Inicializa shipsRemaining
+        // VIDA.setText(String.valueOf(shipsRemaining)); // Actualiza el Label "vida"
 
-        // Comienza el juego
         playerTurn = random.nextBoolean();
         if (!playerTurn) {
             machineTurn();
@@ -227,6 +234,7 @@ public class GameController {
      *
      * @param ships Lista de listas de celdas que representan los barcos.
      */
+
     private void checkIfShipSunk(List<List<Cell>> ships) {
         for (List<Cell> ship : ships) {
             boolean sunk = true;
@@ -238,8 +246,10 @@ public class GameController {
             }
             if (sunk) {
                 for (Cell cell : ship) {
-                    cell.getButton().setStyle("-fx-background-color: #000000;"); // Indica barco hundido
+                    cell.getButton().setStyle("-fx-background-color: #000000;");
                 }
+               // shipsRemaining--;
+               // VIDA.setText(String.valueOf(shipsRemaining));
                 if (areAllShipsSunk(ships)) {
                     endGame();
                 }

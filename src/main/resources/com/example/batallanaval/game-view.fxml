@@ -80,22 +80,27 @@
             </Label>
             </children>
         </AnchorPane>
-      <Label alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="185.0" layoutY="547.0" prefHeight="27.0" prefWidth="40.0" style="-fx-background-color: #00f6ff;" text="Agua" textOverrun="CLIP">
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="277.0" layoutY="450.0" prefHeight="27.0" prefWidth="40.0" style="-fx-background-color: #00f6ff;" text="Agua" textAlignment="CENTER" textOverrun="CLIP" underline="true" wrapText="true">
          <font>
             <Font name="Agency FB" size="22.0" />
          </font>
       </Label>
-      <Label alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="238.0" layoutY="549.0" prefHeight="27.0" prefWidth="60.0" style="-fx-background-color: #ff0000;" text="Tocado" textOverrun="CLIP">
+      <Label alignment="CENTER" contentDisplay="RIGHT" layoutX="369.0" layoutY="450.0" prefHeight="27.0" prefWidth="60.0" style="-fx-background-color: #ff0000;" text="Tocado" textOverrun="CLIP" underline="true" wrapText="true">
          <font>
             <Font name="Agency FB" size="22.0" />
          </font>
       </Label>
-      <Label alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="311.0" layoutY="549.0" prefHeight="27.0" prefWidth="68.0" style="-fx-background-color: #847676;" text="Hundido" textOverrun="CLIP">
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="461.0" layoutY="451.0" prefHeight="27.0" prefWidth="61.0" style="-fx-background-color: #847676;" text="Hundido" textAlignment="CENTER" textOverrun="CLIP" wrapText="true">
          <font>
             <Font name="Agency FB" size="22.0" />
          </font>
       </Label>
-      <Label alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="33.0" layoutY="548.0" prefHeight="27.0" prefWidth="141.0" style="-fx-background-color: WHITE;" text="Posibles estados:" textOverrun="CLIP">
+      <AnchorPane layoutX="-9.0" layoutY="561.0" prefHeight="50.0" prefWidth="73.0">
+         <children>
+            <Label fx:id="VIDA" layoutX="19.0" layoutY="17.0" text="." />
+         </children>
+      </AnchorPane>
+      <Label alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="343.0" layoutY="421.0" prefHeight="27.0" prefWidth="122.0" style="-fx-background-color: WHITE;" text="Posibles estados:" textOverrun="CLIP">
          <font>
             <Font name="Agency FB" size="22.0" />
          </font>
