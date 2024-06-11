@@ -7,42 +7,32 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class GameController {
 
-    private static final int SIZE = 11; // Define el tamaño del tablero
+    private static final int SIZE = 10; // Define el tamaño del tablero
 
     @FXML
     private GridPane gridPanePlayer1; // Tablero de la máquina
     @FXML
     private GridPane gridPanePlayer2; // Tablero del jugador
 
-    private Cell[][] cells1 = new Cell[SIZE][SIZE];
-    private Cell[][] cells2 = new Cell[SIZE][SIZE];
+    private Cell[][] cells1 = new Cell[SIZE][SIZE]; // CELDAS DE LA MAQUINA
+    private Cell[][] cells2 = new Cell[SIZE][SIZE]; // CELDAS DEL JUGADOR
 
+    // LISTAS DE LISTAS PARA EL USO DEL TABLERO
     private List<List<Cell>> ships1; // Lista de listas de celdas para los barcos de la máquina
     private List<List<Cell>> ships2; // Lista de listas de celdas para los barcos del jugador
 
     private Random random = new Random();
-    private Set<String> machineShots = new HashSet<>(); // Para evitar tiros repetidos de la máquina
 
-    private boolean playerTurn = true; // Indica de quién es el turno
+    // ESTO UTILIZA ELEMENTOS DE TIPO STRING PARA CADA CELDA, GARANTIZA QUE SEA UNICO CADA ELEMENTO Y NOS AYUDA A EVITAR REPETICIONES
+    private Set<String> machineShots = new HashSet<>();
 
-    // Método para inicializar el tablero y otras configuraciones iniciales
-    @FXML
-    public void initialize() {
-        initializeBoard(gridPanePlayer1, cells1, false); // Inicializa el tablero de la máquina
-        initializeBoard(gridPanePlayer2, cells2, true);  // Inicializa el tablero del jugador
+    private boolean playerTurn = true;
 
-        // Coloca los barcos de ambos jugadores
-        ships1 = placeShips(cells1); // Coloca los barcos de la máquina
-        ships2 = placeShips(cells2); // Coloca los barcos del jugador
-    }
-
+    // CARACTERISTICAS DE AMBOS TABLEROS E INDICA LAS ACCIONES DEL BOTON SOBRE CADA CASILLA
     private void initializeBoard(GridPane gridPane, Cell[][] cells, boolean isPlayer) {
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
@@ -57,16 +47,70 @@ public class GameController {
         }
     }
 
-    private List<List<Cell>> placeShips(Cell[][] cells) {
-        // Lógica para colocar barcos en el tablero
-        // Debes implementar esto según tu lógica específica para colocar barcos
-        // Ejemplo de un barco de 3 celdas en la primera fila:
-        cells[0][0].setState(CellState.BARCO);
-        cells[0][1].setState(CellState.BARCO);
-        cells[0][2].setState(CellState.BARCO);
-        // Devuelve la lista de listas de celdas para los barcos
-        return List.of(List.of(cells[0][0], cells[0][1], cells[0][2]));
+    // Método para inicializar el tablero y otras configuraciones iniciales
+    @FXML
+    public void initialize() {
+
+        initializeBoard(gridPanePlayer1, cells1, false); // Inicializa el tablero de la máquina
+        initializeBoard(gridPanePlayer2, cells2, true);  // Inicializa el tablero del jugador
+
+        // Coloca los barcos de ambos jugadores
+        ships1 = placeShips(cells1); // máquina
+        ships2 = placeShips(cells2); // jugador
+
+        // Comienza el juego
+        playerTurn = random.nextBoolean();
+        if (!playerTurn) {
+            machineTurn();
+        }
     }
+
+    private List<List<Cell>> placeShips(Cell[][] cells) {
+        List<List<Cell>> ships = new ArrayList<>();
+
+        // Coloca el primer barco de tres celdas en la primera fila como ejemplo
+        ships.add(placeShip(cells, 3));
+
+        // Coloca el segundo barco de cuatro celdas en la segunda fila como ejemplo
+        ships.add(placeShip(cells, 4));
+
+        // Puedes continuar agregando más barcos aquí
+
+        return ships;
+    }
+
+    private List<Cell> placeShip(Cell[][] cells, int length) {
+        List<Cell> ship = new ArrayList<>();
+
+        Random random = new Random();
+
+        // Genera coordenadas aleatorias para la ubicación del barco
+        int row = random.nextInt(SIZE);
+        int col = random.nextInt(SIZE - length + 1); // Asegura que el barco se ajuste completamente en el tablero
+
+        // Verifica si las celdas para colocar el barco están libres
+        boolean canPlaceShip = true;
+        for (int i = 0; i < length; i++) {
+            if (cells[row][col + i].getState() != CellState.AGUA) {
+                canPlaceShip = false;
+                break;
+            }
+        }
+
+        // Si las celdas están libres, coloca el barco
+        if (canPlaceShip) {
+            for (int i = 0; i < length; i++) {
+                cells[row][col + i].setState(CellState.BARCO);
+                ship.add(cells[row][col + i]);
+            }
+        } else {
+            // Si no se puede colocar el barco en la posición generada, intenta nuevamente
+            ship = placeShip(cells, length);
+        }
+
+        return ship;
+    }
+
 
     @FXML
     void onHandleButtonPlay(ActionEvent event) {
@@ -75,8 +119,10 @@ public class GameController {
             for (int row = 0; row < SIZE; row++) {
                 for (int col = 0; col < SIZE; col++) {
                     if (cells2[row][col].getButton() == button) {
-                        handleCellClick(cells2[row][col], ships2);
-                        machineTurn();
+                        if (!handleCellClick(cells2[row][col], ships2)) {
+                            playerTurn = false;
+                            machineTurn();
+                        }
                         return;
                     }
                 }
@@ -89,7 +135,7 @@ public class GameController {
             boolean hit;
             do {
                 hit = machineShoot();
-            } while (hit);
+            } while (hit && !playerTurn); // El bucle se detiene si la máquina acierta y el jugador no ha cambiado el turno
         }
     }
 
@@ -98,30 +144,31 @@ public class GameController {
         do {
             row = random.nextInt(SIZE);
             col = random.nextInt(SIZE);
-        } while (machineShots.contains(row + "," + col) || cells1[row][col].getState() != CellState.AGUA); // Evitar disparos repetidos y a casillas ya presionadas
+        } while (machineShots.contains(row + "," + col)); // Evitar disparos repetidos
+
         machineShots.add(row + "," + col);
+
         boolean hit = handleCellClick(cells1[row][col], ships1);
         if (!hit) {
             playerTurn = true; // Si la máquina no acierta, cambia el turno al jugador
         }
+
         return hit;
     }
 
     private boolean handleCellClick(Cell cell, List<List<Cell>> ships) {
-        if (cell.getState() == CellState.AGUA || cell.getState() == CellState.BARCO || cell.getState() == CellState.BARCO_HUNDIDO) {
-            cell.getButton().setDisable(true); // Deshabilita el botón para evitar futuros eventos
-        }
-
         if (cell.getState() == CellState.AGUA) {
+            cell.getButton().setDisable(true); // Deshabilita el botón para evitar futuros eventos
             cell.getButton().setStyle("-fx-background-color: #0022ff;"); // Indica agua
-            playerTurn = !playerTurn; // Cambia el turno
             return false;
         } else if (cell.getState() == CellState.BARCO) {
+            cell.getButton().setDisable(true); // Deshabilita el botón para evitar futuros eventos
             cell.getButton().setStyle("-fx-background-color: #ad3636;"); // Indica parte del barco tocada
             cell.setState(CellState.BARCO_HUNDIDO);
             checkIfShipSunk(ships);
             return true;
         } else if (cell.getState() == CellState.BARCO_HUNDIDO) {
+            cell.getButton().setDisable(true); // Deshabilita el botón para evitar futuros eventos
             // Celda ya tocada, no hacer nada
             return false;
         }
@@ -142,8 +189,26 @@ public class GameController {
                 for (Cell cell : ship) {
                     cell.getButton().setStyle("-fx-background-color: #000000;"); // Indica barco hundido
                 }
-                playerTurn = !playerTurn; // Cambia el turno
+                if (areAllShipsSunk(ships)) {
+                    endGame();
+                }
             }
         }
+    }
+
+    private boolean areAllShipsSunk(List<List<Cell>> ships) {
+        for (List<Cell> ship : ships) {
+            for (Cell cell : ship) {
+                if (cell.getState() != CellState.BARCO_HUNDIDO) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void endGame() {
+        // Aquí puedes agregar el código para finalizar el juego, como mostrar un mensaje de victoria
+        System.out.println("Juego terminado");
     }
 }
