@@ -1,16 +1,28 @@
 package com.example.batallanaval.model;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Player extends Application {
+public class Player {
+    private String name;
+    private Cell[][] cells;
+    private List<List<Cell>> ships;
 
-    public static void main(String[] args) {
-        launch(args);
+    public Player(String name, int size) {
+        this.name = name;
+        this.cells = new Cell[size][size];
+        this.ships = new ArrayList<>();
     }
 
-    @Override
-    public void start(Stage primaryStage) {
+    public String getName() {
+        return name;
+    }
 
+    public Cell[][] getCells() {
+        return cells;
+    }
+
+    public List<List<Cell>> getShips() {
+        return ships;
     }
 }
